@@ -2,13 +2,17 @@ import { create } from "zustand";
 
 type User = {
   name: string;
+  email?: string;
+  guestId?: string;
+  phone?: string;
+  address?: string;
   isGuest: boolean;
 };
 
 type UserStore = {
   user: User | null;
   setUser: (user: User) => void;
-  clearUser: () => void;
+  logout: () => void;
 };
 
 export const useUserStore = create<UserStore>((set) => ({
@@ -16,5 +20,5 @@ export const useUserStore = create<UserStore>((set) => ({
 
   setUser: (user) => set({ user }),
 
-  clearUser: () => set({ user: null }),
+  logout: () => set({ user: null }),
 }));
