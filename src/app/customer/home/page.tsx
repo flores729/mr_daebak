@@ -4,25 +4,77 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getAllMenus } from "@/lib/data/menuRepository";
+import { useUserStore } from "@/lib/store/useUserStore";
 
 export default function HomePage() {
   const router = useRouter();
   const menus = getAllMenus();
 
+  const user = useUserStore((s) => s.user);
+  const logout = useUserStore((s) => s.logout);
+
   const goDetail = (id: string) => {
     router.push(`/customer/home/${id}`);
+  };
+
+  const handleAccount = () => {
+    if (!user || user.isGuest) {
+      router.push("/customer/login");
+      return;
+    }
+    router.push("/customer/account");
+  };
+
+  const handleAccountSwitch = () => {
+    logout();
+    router.push("/customer/login");
   };
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white px-6 py-8">
       <header className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">Mr.Daebak Dinner</h1>
-        <button
-          className="text-sm text-zinc-300 hover:text-white underline-offset-4 hover:underline"
-          onClick={() => router.push("/customer/orders")}
-        >
-          주문 조회
-        </button>
+
+        <div className="flex items-center gap-3 text-sm">
+          {/* 계정 표시 */}
+          {user ? (
+            <>
+              <span className="text-zinc-300">
+                {user.isGuest
+                  ? `비회원 · ${user.name}`
+                  : `${user.name} 님`}
+              </span>
+              {!user.isGuest && (
+                <button
+                  className="px-3 py-1 rounded-full border border-zinc-600 hover:border-zinc-300"
+                  onClick={handleAccount}
+                >
+                  계정관리
+                </button>
+              )}
+              <button
+                className="px-3 py-1 rounded-full border border-zinc-600 hover:border-zinc-300"
+                onClick={handleAccountSwitch}
+              >
+                계정 전환
+              </button>
+            </>
+          ) : (
+            <button
+              className="px-3 py-1 rounded-full border border-zinc-600 hover:border-zinc-300"
+              onClick={() => router.push("/customer/login")}
+            >
+              로그인 / 회원가입
+            </button>
+          )}
+
+          <button
+            className="px-3 py-1 rounded-full border border-zinc-600 hover:border-zinc-300"
+            onClick={() => router.push("/customer/orders")}
+          >
+            주문 조회
+          </button>
+        </div>
       </header>
 
       <section className="max-w-5xl mx-auto">

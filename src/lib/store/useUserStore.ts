@@ -5,10 +5,10 @@ import { create } from "zustand";
 
 export type AppUser = {
   name: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  guestId?: string;
+  email?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  guestId?: string | null;
   isGuest: boolean;
 };
 
@@ -22,9 +22,11 @@ type UserStore = {
 export const useUserStore = create<UserStore>((set) => ({
   user: null,
   setUser: (user) => set({ user }),
+
   updateUser: (partial) =>
     set((state) =>
-      state.user ? { user: { ...state.user, ...partial } } : state,
+      state.user ? { user: { ...state.user, ...partial } } : state
     ),
+
   logout: () => set({ user: null }),
 }));

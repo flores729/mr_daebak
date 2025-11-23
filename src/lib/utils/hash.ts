@@ -1,18 +1,25 @@
-export async function makeGuestId(phone: string): Promise<string> {
-  const digits = phone.replace(/\D/g, "");
-  const last8 = digits.slice(-8);
+// src/lib/utils/hash.ts
 
-  const encoder = new TextEncoder();
-  const data = encoder.encode(last8);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("")
-    .slice(0, 12);
-
-  return `g-${hashArray}`;
+// 간단한 해시 (SHA-256 같은 무거운거 필요 없음)
+function simpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+  }
+  return hash.toString(16).slice(0, 8); // 8자리만 사용
 }
 
-// 로그인 페이지 호환을 위해 추가 export
-export const makeGuestIdFromPhone = makeGuestId;
+// 🔥 전화번호 기반 guestId 생성
+export function makeGuestIdFromPhone(phone: string): string {
+  // 010-1234-5678 → 숫자만 남기기
+  const digits = phone.replace(/[^0-9]/g, "");
+
+  // 뒤 8자리 키값 (주 조회용)
+  const last8 = digits.slice(-8);
+
+  // 해시값 생성
+  const hashed = simpleHash(digits);
+
+  // 최종 guestId
+  return `guest-${hashed}-${last8}`;
+}
